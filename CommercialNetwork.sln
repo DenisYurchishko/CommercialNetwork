@@ -7,6 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommercialNetwork.Web", "Co
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommercialNetwork.Web.Tests", "CommercialNetwork.Web.Tests\CommercialNetwork.Web.Tests.csproj", "{14D91824-1C68-4FD1-A7E5-176190040B85}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL_Scripts", "SQL_Scripts", "{290642A0-E75B-4A2A-B060-FDB4D4E6B245}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Base", "Base", "{02D3ECC1-C633-4392-BAA1-CC73624C4EC6}"
+	ProjectSection(SolutionItems) = preProject
+		Structure.sql = Structure.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +31,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{02D3ECC1-C633-4392-BAA1-CC73624C4EC6} = {290642A0-E75B-4A2A-B060-FDB4D4E6B245}
 	EndGlobalSection
 EndGlobal
