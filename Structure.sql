@@ -231,18 +231,18 @@ BEGIN --#region Tables creation
 
 	END --#endregion Product
 
-	BEGIN --#region ProductsInSupply
+	BEGIN --#region ProductInSupply
 
-		IF OBJECT_ID(N'ProductsInSupply','U') IS NOT NULL
+		IF OBJECT_ID(N'ProductInSupply','U') IS NOT NULL
 		BEGIN
-			DROP TABLE [dbo].[ProductsInSupply];
+			DROP TABLE [dbo].[ProductInSupply];
 		END
 
 		SET ANSI_NULLS ON
 		SET QUOTED_IDENTIFIER ON
 		SET ANSI_PADDING ON
 
-		CREATE TABLE [dbo].[ProductsInSupply]
+		CREATE TABLE [dbo].[ProductInSupply]
 		(
 			[Id] INT IDENTITY(1, 1) NOT FOR REPLICATION NOT NULL,
 			[Quantity] DECIMAL(18, 3) NOT NULL,
@@ -250,7 +250,7 @@ BEGIN --#region Tables creation
 			[SupplyId] INT NOT NULL,
 			[ProductId] INT NOT NULL
 
-			CONSTRAINT [PK_ProductsInSupply] PRIMARY KEY CLUSTERED 
+			CONSTRAINT [PK_ProductInSupply] PRIMARY KEY CLUSTERED 
 			(
 				[Id] ASC
 			) WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON,
@@ -259,15 +259,15 @@ BEGIN --#region Tables creation
 
 		SET ANSI_PADDING OFF
 
-		ALTER TABLE [dbo].[ProductsInSupply]  WITH CHECK ADD  CONSTRAINT [FK_Supply_ProductsInSupply] FOREIGN KEY([SupplyId])
-			REFERENCES [dbo].[Sypply] ([Id])
-		ALTER TABLE [dbo].[ProductsInSupply] CHECK CONSTRAINT [FK_Supply_ProductsInSupply]
+		ALTER TABLE [dbo].[ProductInSupply]  WITH CHECK ADD  CONSTRAINT [FK_Supply_ProductInSupply] FOREIGN KEY([SupplyId])
+			REFERENCES [dbo].[Supply] ([Id])
+		ALTER TABLE [dbo].[ProductInSupply] CHECK CONSTRAINT [FK_Supply_ProductInSupply]
 
-		ALTER TABLE [dbo].[ProductsInSupply]  WITH CHECK ADD  CONSTRAINT [FK_Product_ProductsInSupply] FOREIGN KEY([ProductId])
+		ALTER TABLE [dbo].[ProductInSupply]  WITH CHECK ADD  CONSTRAINT [FK_Product_ProductInSupply] FOREIGN KEY([ProductId])
 			REFERENCES [dbo].[Product] ([Id])
-		ALTER TABLE [dbo].[ProductsInSupply] CHECK CONSTRAINT [FK_Product_ProductsInSupply]
+		ALTER TABLE [dbo].[ProductInSupply] CHECK CONSTRAINT [FK_Product_ProductInSupply]
 
-	END --#endregion ProductsInSupply
+	END --#endregion ProductInSupply
 
 	BEGIN --#region WorkingShift
 
@@ -330,14 +330,14 @@ BEGIN --#region Tables creation
 		SET ANSI_PADDING OFF
 
 		ALTER TABLE [dbo].[PersonalInWorkingShift]  WITH CHECK ADD  CONSTRAINT [FK_Personal_PersonalInWorkingShift] FOREIGN KEY([PersonalId])
-			REFERENCES [dbo].[Product] ([Id])
+			REFERENCES [dbo].[Personal] ([Id])
 		ALTER TABLE [dbo].[PersonalInWorkingShift] CHECK CONSTRAINT [FK_Personal_PersonalInWorkingShift]
 
 		ALTER TABLE [dbo].[PersonalInWorkingShift]  WITH CHECK ADD  CONSTRAINT [FK_WorkingShift_PersonalInWorkingShift] FOREIGN KEY([WorkingShiftId])
 			REFERENCES [dbo].[WorkingShift] ([Id])
 		ALTER TABLE [dbo].[PersonalInWorkingShift] CHECK CONSTRAINT [FK_WorkingShift_PersonalInWorkingShift]
 
-	END --#endregion ProductsInSupply
+	END --#endregion PersonalInWorkingShift
 
 	BEGIN --#region Order
 
@@ -356,10 +356,10 @@ BEGIN --#region Tables creation
 			[Status] NVARCHAR(255) NOT NULL,
 			[Date] DATETIME NOT NULL,
 			[Price] DECIMAL(18, 3) NOT NULL,
-			[ShopId] INT NOT NULL,
-			[ProductTypeId] INT NOT NULL
+			[PersonalInWorkingShiftId] INT NOT NULL,
+			[UserId] INT NOT NULL
 
-			CONSTRAINT [PK_Product] PRIMARY KEY CLUSTERED 
+			CONSTRAINT [PK_Order] PRIMARY KEY CLUSTERED 
 			(
 				[Id] ASC
 			) WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON,
@@ -368,9 +368,83 @@ BEGIN --#region Tables creation
 
 		SET ANSI_PADDING OFF
 
-		ALTER TABLE [dbo].[Order]  WITH CHECK ADD  CONSTRAINT [FK_Shop_Product] FOREIGN KEY([ShopId])
-			REFERENCES [dbo].[Shop] ([Id])
-		ALTER TABLE [dbo].[Order] CHECK CONSTRAINT [FK_Shop_Product]
+		ALTER TABLE [dbo].[Order]  WITH CHECK ADD  CONSTRAINT [FK_PersonalInWorkingShift_Order] FOREIGN KEY([PersonalInWorkingShiftId])
+			REFERENCES [dbo].[PersonalInWorkingShift] ([Id])
+		ALTER TABLE [dbo].[Order] CHECK CONSTRAINT [FK_PersonalInWorkingShift_Order]
+
+		ALTER TABLE [dbo].[Order]  WITH CHECK ADD  CONSTRAINT [FK_User_Order] FOREIGN KEY([UserId])
+			REFERENCES [dbo].[User] ([Id])
+		ALTER TABLE [dbo].[Order] CHECK CONSTRAINT [FK_PersonalInWorkingShift_Order]
+
+	END --#endregion Order
+
+	BEGIN --#region ProductInOrder
+
+		IF OBJECT_ID(N'ProductInOrder','U') IS NOT NULL
+		BEGIN
+			DROP TABLE [dbo].[ProductInOrder];
+		END
+
+		SET ANSI_NULLS ON
+		SET QUOTED_IDENTIFIER ON
+		SET ANSI_PADDING ON
+
+		CREATE TABLE [dbo].[ProductInOrder]
+		(
+			[Id] INT IDENTITY(1, 1) NOT FOR REPLICATION NOT NULL,
+			[Quantity] DECIMAL(18, 3) NOT NULL,
+			[OrderId] INT NOT NULL,
+			[ProductId] INT NOT NULL
+
+			CONSTRAINT [PK_ProductInOrder] PRIMARY KEY CLUSTERED 
+			(
+				[Id] ASC
+			) WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON,
+				    ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+		) ON [PRIMARY]
+
+		SET ANSI_PADDING OFF
+
+		ALTER TABLE [dbo].[ProductInOrder]  WITH CHECK ADD  CONSTRAINT [FK_Order_ProductInOrder] FOREIGN KEY([OrderId])
+			REFERENCES [dbo].[Order] ([Id])
+		ALTER TABLE [dbo].[ProductInOrder] CHECK CONSTRAINT [FK_Order_ProductInOrder]
+
+		ALTER TABLE [dbo].[ProductInOrder]  WITH CHECK ADD  CONSTRAINT [FK_Product_ProductInOrder] FOREIGN KEY([ProductId])
+			REFERENCES [dbo].[Product] ([Id])
+		ALTER TABLE [dbo].[ProductInOrder] CHECK CONSTRAINT [FK_Product_ProductInOrder]
+
+	END --#endregion ProductInOrder
+
+	BEGIN --#region Check
+
+		IF OBJECT_ID(N'Check','U') IS NOT NULL
+		BEGIN
+			DROP TABLE [dbo].[Check];
+		END
+
+		SET ANSI_NULLS ON
+		SET QUOTED_IDENTIFIER ON
+		SET ANSI_PADDING ON
+
+		CREATE TABLE [dbo].[Check]
+		(
+			[Id] INT IDENTITY(1, 1) NOT FOR REPLICATION NOT NULL,
+			[Date] DATETIME NOT NULL,
+			[Type] NVARCHAR(100) NOT NULL,
+			[OrderId] INT NOT NULL
+
+			CONSTRAINT [PK_Check] PRIMARY KEY CLUSTERED 
+			(
+				[Id] ASC
+			) WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON,
+				    ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
+		) ON [PRIMARY]
+
+		SET ANSI_PADDING OFF
+
+		ALTER TABLE [dbo].[Check]  WITH CHECK ADD  CONSTRAINT [FK_Order_Check] FOREIGN KEY([OrderId])
+			REFERENCES [dbo].[Order] ([Id])
+		ALTER TABLE [dbo].[Check] CHECK CONSTRAINT [FK_Order_Check]
 
 	END --#endregion Order
 
