@@ -133,5 +133,45 @@ namespace CommercialNetwork.Core.Managers
                 command.ExecuteNonQuery();
             }
         }
+
+        public void CreateWorkingShift(WorkingShiftModel model)
+        {
+            using (var connection = DbConnection.GetConnection())
+            {
+                connection.Open();
+
+                var sqlExpression = @"INSERT INTO [dbo].[WorkingShift]
+                                    ([DateStart], [DateEnd], [ShopId], [Number]) 
+                                    VALUES 
+                                    (@DateStart, @DateEnd, @ShopId, @Number)";
+
+                var command = new SqlCommand(sqlExpression, connection);
+                command.Parameters.Add(new SqlParameter("Number", model.Number));
+                command.Parameters.Add(new SqlParameter("DateStart", model.DateStart));
+                command.Parameters.Add(new SqlParameter("DateEnd", model.DateEnd));
+                command.Parameters.Add(new SqlParameter("ShopId", model.ShopId));
+
+                command.ExecuteNonQuery();
+
+                sqlExpression = @"SELECT MAX(Id) FROM [dbo].[WorkingShift]";
+
+                command = new SqlCommand(sqlExpression, connection);
+                var newId = (int)command.ExecuteScalar();
+
+                foreach (var item in model.Personal)
+                {
+                    sqlExpression = @"INSERT INTO [dbo].[PersonalInWorkingShift]
+                                    ([PersonalId], [WorkingShiftId]) 
+                                    VALUES 
+                                    (@PersonalId, @WorkingShiftId)";
+
+                    command = new SqlCommand(sqlExpression, connection);
+                    command.Parameters.Add(new SqlParameter("PersonalId", item.Id));
+                    command.Parameters.Add(new SqlParameter("WorkingShiftId", newId));
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

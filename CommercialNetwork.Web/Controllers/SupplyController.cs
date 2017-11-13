@@ -64,5 +64,21 @@ namespace CommercialNetwork.Web.Controllers
                 return new ResponseModel { Success = false, Message = ex.Message };
             }
         }
+
+        public ResponseModel SupplyCreate(SupplyModel model)
+        {
+            try
+            {
+                var manager = new SupplyManager();
+
+                manager.SupplyCreate(model);
+
+                return new ResponseModel { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel { Success = false, Message = ex.Message };
+            }
+        }
     }
 }

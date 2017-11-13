@@ -199,5 +199,46 @@ namespace CommercialNetwork.Core.Managers
                 return needToSupplies;
             }
         }
+
+        public void SupplyCreate(SupplyModel model)
+        {
+            using (var connection = DbConnection.GetConnection())
+            {
+                connection.Open();
+
+                var sqlExpression = @"INSERT INTO [dbo].[Supply]
+                                    ([SupplyDate], [ProviderId], [ShopId]) 
+                                    VALUES 
+                                    (@SupplyDate, @ProviderId, @ShopId)";
+
+                var command = new SqlCommand(sqlExpression, connection);
+                command.Parameters.Add(new SqlParameter("SupplyDate", model.SupplyDate));
+                command.Parameters.Add(new SqlParameter("ProviderId", model.Provider.Id));
+                command.Parameters.Add(new SqlParameter("ShopId", model.ShopId));
+
+                command.ExecuteNonQuery();
+
+                sqlExpression = @"SELECT MAX(Id) FROM [dbo].[Supply]";
+
+                command = new SqlCommand(sqlExpression, connection);
+                var newId = (int)command.ExecuteScalar();
+
+                foreach (var item in model.Products)
+                {
+                    sqlExpression = @"INSERT INTO [dbo].[ProductInSupply]
+                                    ([Quantity], [NewPrice], [ProductId], [SupplyId]) 
+                                    VALUES 
+                                    (@Quantity, @NewPrice, @ProductId, @SupplyId)";
+
+                    command = new SqlCommand(sqlExpression, connection);
+                    command.Parameters.Add(new SqlParameter("Quantity", item.Quantity));
+                    command.Parameters.Add(new SqlParameter("NewPrice", item.Price));
+                    command.Parameters.Add(new SqlParameter("ProductId", item.Id));
+                    command.Parameters.Add(new SqlParameter("SupplyId", newId));
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }

@@ -282,31 +282,39 @@ namespace CommercialNetwork.Core.Managers
                 connection.Open();
 
                 var sqlExpression = @"INSERT INTO [dbo].[Order]
-                                    ([Status], [Number], [Date], [Price], [PersonalInWorkingShiftId], [UserId]) 
-                                  VALUES 
-                                    (@Status, @Number, @Date, @Price, @PersonalInWorkingShiftId, @UserId)";
+                                    ([Status], [Date], [Price], [PersonalInWorkingShiftId], [UserId], [Number]) 
+                                    VALUES 
+                                    (@Status, @Date, @Price, @PersonalInWorkingShiftId, @UserId, @Number)";
 
                 var command = new SqlCommand(sqlExpression, connection);
                 command.Parameters.Add(new SqlParameter("Status", model.Status));
                 command.Parameters.Add(new SqlParameter("Number", model.Number));
                 command.Parameters.Add(new SqlParameter("Date", model.Date));
+                command.Parameters.Add(new SqlParameter("Price", model.Sum));
                 command.Parameters.Add(new SqlParameter("PersonalInWorkingShiftId", model.PersonalInWorkingShiftId));
                 command.Parameters.Add(new SqlParameter("UserId", model.UserId));
 
-                foreach(var item in model.Products)
+                command.ExecuteNonQuery();
+
+                sqlExpression = @"SELECT MAX(Id) FROM [dbo].[Order]";
+
+                command = new SqlCommand(sqlExpression, connection);
+                var newId = (int)command.ExecuteScalar();
+
+                foreach (var item in model.Products)
                 {
                     sqlExpression = @"INSERT INTO [dbo].[ProductInOrder]
                                     ([Quantity], [ProductId], [OrderId]) 
-                                  VALUES 
-                                    (@Quantity, @ProductId, @OrderId";
+                                    VALUES 
+                                    (@Quantity, @ProductId, @OrderId)";
 
                     command = new SqlCommand(sqlExpression, connection);
                     command.Parameters.Add(new SqlParameter("Quantity", item.Quantity));
                     command.Parameters.Add(new SqlParameter("ProductId", item.Id));
-                    command.Parameters.Add(new SqlParameter("OrderId", model.Id));
-                }
+                    command.Parameters.Add(new SqlParameter("OrderId", newId));
 
-                command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
+                }
             }
         }
     }

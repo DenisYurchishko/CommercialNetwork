@@ -62,5 +62,22 @@ namespace CommercialNetwork.Web.Controllers
                 return new ResponseModel { Success = false, Message = ex.Message };
             }
         }
+
+        [HttpPost]
+        public ResponseModel CreateWorkingShift(WorkingShiftModel model)
+        {
+            try
+            {
+                var manager = new PersonalManager();
+
+                manager.CreateWorkingShift(model);
+
+                return new ResponseModel { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new ResponseModel { Success = false, Message = ex.Message };
+            }
+        }
     }
 }
