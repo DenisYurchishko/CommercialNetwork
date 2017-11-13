@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace CommercialNetwork.Models.Models
 {
-    public class UserModel
+    public class UserModel : IdNameModel
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
         public string Login { get; set; }
         public string Password { get; set; }
         public string Email { get; set; }
+        public string Role { get; set; }
     }
 }

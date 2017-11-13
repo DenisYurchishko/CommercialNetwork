@@ -12,7 +12,7 @@ BEGIN --#region Database creation
 END --#endregion Database creation
 
 USE CommercialNetwork;
-GO
+
 BEGIN --#region Tables creation
 
 	BEGIN --#region Shop
@@ -122,7 +122,7 @@ BEGIN --#region Tables creation
 			[Name] NVARCHAR(255) NOT NULL,
 			[Address] NVARCHAR(255) NOT NULL
 
-			CONSTRAINT [PK_Provider] PRIMARY KEY CLUSTERED 
+			CONSTRAINT [PK_Provider] PRIMARY KEY CLUSTERED
 			(
 				[Id] ASC
 			) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON,
@@ -356,6 +356,7 @@ BEGIN --#region Tables creation
 		CREATE TABLE [dbo].[WorkingShift]
 		(
 			[Id] INT IDENTITY(1, 1) NOT FOR REPLICATION NOT NULL,
+			[Number] NVARCHAR(50) NOT NULL,
 			[DateStart] DATETIME NOT NULL,
 			[DateEnd] DATETIME NOT NULL,
 			[ShopId] INT NOT NULL
@@ -427,6 +428,7 @@ BEGIN --#region Tables creation
 		(
 			[Id] INT IDENTITY(1, 1) NOT FOR REPLICATION NOT NULL,
 			[Status] NVARCHAR(255) NOT NULL,
+			[Number] NVARCHAR(255) NOT NULL,
 			[Date] DATETIME NOT NULL,
 			[Price] DECIMAL(18, 3) NOT NULL,
 			[PersonalInWorkingShiftId] INT NOT NULL,
@@ -581,7 +583,7 @@ BEGIN --#region Tables insert initialize data
 	END --#endregion ProductInsert
 
 END --#endregion Tables Tables insert initialize data
-GO
+
 --#region Triggers
 	
 	--#region Shop Triggers
@@ -597,33 +599,39 @@ GO
 		AS
 		BEGIN
 			
-			DECLARE @OldId INT;
+			DECLARE @OldId TABLE(VALUE INT);
 			
-			SELECT @OldId = (SELECT [Id] FROM deleted);
+			INSERT INTO @OldId (VALUE) (SELECT [Id] FROM deleted);
 			
 			DELETE
 			FROM
 				[dbo].[Supply]
 			WHERE
-				[ShopId] IN (@OldId);
+				[ShopId] IN (SELECT VALUE FROM @OldId);
 			
 			DELETE
 			FROM
 				[dbo].[ProductInShop]
 			WHERE
-				[ShopId] IN (@OldId);
+				[ShopId] IN (SELECT VALUE FROM @OldId);
 			
 			DELETE
 			FROM
 				[dbo].[NeedToSupply]
 			WHERE
-				[ShopId] IN (@OldId);
+				[ShopId] IN (SELECT VALUE FROM @OldId);
 			
 			DELETE
 			FROM
 				[dbo].[WorkingShift]
 			WHERE
-				[ShopId] IN (@OldId);
+				[ShopId] IN (SELECT VALUE FROM @OldId);
+
+			DELETE
+			FROM
+				[dbo].[Shop]
+			WHERE
+				[Id] IN (SELECT VALUE FROM @OldId);
 			
 		END
 	
@@ -642,15 +650,21 @@ GO
 		AS
 		BEGIN
 			
-			DECLARE @OldId INT;
+			DECLARE @OldId TABLE(VALUE INT);
 			
-			SELECT @OldId = (SELECT [Id] FROM deleted);
+			INSERT INTO @OldId (VALUE) (SELECT [Id] FROM deleted);
 			
 			DELETE
 			FROM
 				[dbo].[Order]
 			WHERE
-				[UserId] IN (@OldId);
+				[UserId] IN (SELECT VALUE FROM @OldId);
+				
+			DELETE
+			FROM
+				[dbo].[User]
+			WHERE
+				[Id] IN (SELECT VALUE FROM @OldId);
 			
 		END
 	
@@ -669,15 +683,21 @@ GO
 		AS
 		BEGIN
 			
-			DECLARE @OldId INT;
+			DECLARE @OldId TABLE(VALUE INT);
 			
-			SELECT @OldId = (SELECT [Id] FROM deleted);
+			INSERT INTO @OldId (VALUE) (SELECT [Id] FROM deleted);
 			
 			DELETE
 			FROM
 				[dbo].[PersonalInWorkingShift]
 			WHERE
-				[PersonalId] IN (@OldId);
+				[PersonalId] IN (SELECT VALUE FROM @OldId);
+
+			DELETE
+			FROM
+				[dbo].[Personal]
+			WHERE
+				[Id] IN (SELECT VALUE FROM @OldId);
 			
 		END
 	
@@ -696,15 +716,21 @@ GO
 		AS
 		BEGIN
 			
-			DECLARE @OldId INT;
+			DECLARE @OldId TABLE(VALUE INT);
 			
-			SELECT @OldId = (SELECT [Id] FROM deleted);
+			INSERT INTO @OldId (VALUE) (SELECT [Id] FROM deleted);
 			
 			DELETE
 			FROM
 				[dbo].[Supply]
 			WHERE
-				[ProviderId] IN (@OldId);
+				[ProviderId] IN (SELECT VALUE FROM @OldId);
+
+			DELETE
+			FROM
+				[dbo].[Provider]
+			WHERE
+				[Id] IN (SELECT VALUE FROM @OldId);
 			
 		END
 	
@@ -723,15 +749,21 @@ GO
 		AS
 		BEGIN
 			
-			DECLARE @OldId INT;
+			DECLARE @OldId TABLE(VALUE INT);
 			
-			SELECT @OldId = (SELECT [Id] FROM deleted);
+			INSERT INTO @OldId (VALUE) (SELECT [Id] FROM deleted);
 			
 			DELETE
 			FROM
 				[dbo].[Product]
 			WHERE
-				[ProductTypeId] IN (@OldId);
+				[ProductTypeId] IN (SELECT VALUE FROM @OldId);
+
+			DELETE
+			FROM
+				[dbo].[ProductType]
+			WHERE
+				[Id] IN (SELECT VALUE FROM @OldId);
 			
 		END
 	
@@ -750,33 +782,39 @@ GO
 		AS
 		BEGIN
 			
-			DECLARE @OldId INT;
+			DECLARE @OldId TABLE(VALUE INT);
 			
-			SELECT @OldId = (SELECT [Id] FROM deleted);
+			INSERT INTO @OldId (VALUE) (SELECT [Id] FROM deleted);
 			
 			DELETE
 			FROM
 				[dbo].[ProductInSupply]
 			WHERE
-				[ProductId] IN (@OldId);
+				[ProductId] IN (SELECT VALUE FROM @OldId);
 
 			DELETE
 			FROM
 				[dbo].[ProductInShop]
 			WHERE
-				[ProductId] IN (@OldId);
+				[ProductId] IN (SELECT VALUE FROM @OldId);
 
 			DELETE
 			FROM
 				[dbo].[NeedToSupply]
 			WHERE
-				[ProductId] IN (@OldId);
+				[ProductId] IN (SELECT VALUE FROM @OldId);
 
 			DELETE
 			FROM
 				[dbo].[ProductInOrder]
 			WHERE
-				[ProductId] IN (@OldId);
+				[ProductId] IN (SELECT VALUE FROM @OldId);
+
+			DELETE
+			FROM
+				[dbo].[Product]
+			WHERE
+				[Id] IN (SELECT VALUE FROM @OldId);
 			
 		END
 	
@@ -795,15 +833,21 @@ GO
 		AS
 		BEGIN
 			
-			DECLARE @OldId INT;
+			DECLARE @OldId TABLE(VALUE INT);
 			
-			SELECT @OldId = (SELECT [Id] FROM deleted);
+			INSERT INTO @OldId (VALUE) (SELECT [Id] FROM deleted);
 			
 			DELETE
 			FROM
 				[dbo].[PersonalInWorkingShift]
 			WHERE
-				[WorkingShiftId] IN (@OldId);
+				[WorkingShiftId] IN (SELECT VALUE FROM @OldId);
+
+			DELETE
+			FROM
+				[dbo].[WorkingShift]
+			WHERE
+				[Id] IN (SELECT VALUE FROM @OldId);
 			
 		END
 	
@@ -822,15 +866,21 @@ GO
 		AS
 		BEGIN
 			
-			DECLARE @OldId INT;
+			DECLARE @OldId TABLE(VALUE INT);
 			
-			SELECT @OldId = (SELECT [Id] FROM deleted);
+			INSERT INTO @OldId (VALUE) (SELECT [Id] FROM deleted);
 			
 			DELETE
 			FROM
 				[dbo].[Order]
 			WHERE
-				[PersonalInWorkingShiftId] IN (@OldId);
+				[PersonalInWorkingShiftId] IN (SELECT VALUE FROM @OldId);
+
+			DELETE
+			FROM
+				[dbo].[PersonalInWorkingShift]
+			WHERE
+				[Id] IN (SELECT VALUE FROM @OldId);
 			
 		END
 	
@@ -849,21 +899,27 @@ GO
 		AS
 		BEGIN
 			
-			DECLARE @OldId INT;
+			DECLARE @OldId TABLE(VALUE INT);
 			
-			SELECT @OldId = (SELECT [Id] FROM deleted);
+			INSERT INTO @OldId (VALUE) (SELECT [Id] FROM deleted);
 			
 			DELETE
 			FROM
 				[dbo].[ProductInOrder]
 			WHERE
-				[OrderId] IN (@OldId);
+				[OrderId] IN (SELECT VALUE FROM @OldId);
 
 			DELETE
 			FROM
 				[dbo].[Check]
 			WHERE
-				[OrderId] IN (@OldId);
+				[OrderId] IN (SELECT VALUE FROM @OldId);
+
+			DELETE
+			FROM
+				[dbo].[Order]
+			WHERE
+				[Id] IN (SELECT VALUE FROM @OldId);
 			
 		END
 	
